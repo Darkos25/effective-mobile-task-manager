@@ -126,6 +126,7 @@ public class TaskController {
         // Как лучше сделать ДТОху? Сделать юзер или по какому то параметру вызывать юзера?
 //        taskDTO.setAuthor(task.getAuthor().getFullName());
 //        taskDTO.setAssignee(task.getAssignee().getFullName());
+
         return taskDTO;
     }
 
