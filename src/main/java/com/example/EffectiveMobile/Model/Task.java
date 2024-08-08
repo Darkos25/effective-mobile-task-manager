@@ -40,15 +40,4 @@ public class Task {
     @JoinColumn(name = "assignee_id")
     private User assignee;
 
-    public TaskDTO TaskToDTO (Task task) {
-        TaskDTO taskDTO = new TaskDTO();
-        taskDTO.setTaskName(task.getTaskName());
-        taskDTO.setDescription(task.getDescription());
-        taskDTO.setPriority(task.getPriority());
-        taskDTO.setStatus(task.getStatus());
-        taskDTO.setAuthor(task.getAuthor().userToDto(task.getAuthor()));
-        taskDTO.setAssignee(task.getAssignee().userToDto(task.getAssignee()));
-        return taskDTO;
-    }
-
 }
