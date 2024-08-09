@@ -6,6 +6,7 @@ import com.example.EffectiveMobile.Repository.TaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -16,10 +17,6 @@ public class TaskService {
 
     @Autowired
     private TaskRepository taskRepository;
-
-    public List<Task> getAllTasks() {
-        return taskRepository.findAll();
-    }
 
     public Task getTaskById(Long id) {
         return taskRepository.findTaskById(id);
@@ -33,16 +30,7 @@ public class TaskService {
         return taskRepository.deleteTaskById(id);
     }
 
-    public Task findTaskByAuthor(User user) {
-        return taskRepository.findTaskByAuthor(user);
-    }
-
-    public Task findTaskByAssignee(User user) {
-        return taskRepository.findTaskByAssignee(user);
-    }
-
-    public Page<Task> getTasks(String author, String asigner, boolean comments, PageRequest pageRequest) {
-        // Реализация спецификаций для фильтрации
+    public Page<Task> getTasks(String author, String asigner, boolean comments, Pageable pageable) {
         Specification<Task> spec = Specification.where(null);
 
         if (author != null && !author.isEmpty()) {
@@ -57,12 +45,6 @@ public class TaskService {
             spec = spec.and((root, query, cb) -> cb.isEmpty(root.get("comments")));
         }
 
-        return taskRepository.findAll(spec, pageRequest);
+        return taskRepository.findAll(spec, pageable);
     }
-
-    public List<Task> findAllTasks(){
-        return taskRepository.findAll();
-    }
-
-
 }

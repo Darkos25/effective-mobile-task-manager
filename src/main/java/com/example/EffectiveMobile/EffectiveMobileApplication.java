@@ -1,6 +1,8 @@
 package com.example.EffectiveMobile;
 
+import com.example.EffectiveMobile.Model.Task;
 import com.example.EffectiveMobile.Model.User;
+import com.example.EffectiveMobile.Service.TaskService;
 import com.example.EffectiveMobile.Service.UserService;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.PostLoad;
@@ -14,6 +16,9 @@ public class EffectiveMobileApplication {
 	@Autowired
 	private UserService userService;
 
+	@Autowired
+	private TaskService taskService;
+
 	public static void main(String[] args) {
 		SpringApplication.run(EffectiveMobileApplication.class, args);
 	}
@@ -25,6 +30,13 @@ public class EffectiveMobileApplication {
 		user.setPassword("password");
 		user.setFullName("name");
 		userService.save(user);
+
+		Task task = new Task();
+		task.setTaskName("task");
+		task.setDescription("description");
+		task.setAuthor(user);
+		task.setAssignee(user);
+		taskService.saveTask(task);
 
 	}
 

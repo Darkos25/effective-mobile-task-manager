@@ -8,10 +8,9 @@ import com.example.EffectiveMobile.Service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/tasks")
@@ -23,6 +22,8 @@ public class TaskController {
     @Autowired
     private CommentService commentService;
 
+    private final int PAGE_SIZE = 15;
+
     @GetMapping
     public ResponseEntity<Page<Task>> getAllTasks(
             @RequestParam(required = false) String author,
@@ -30,9 +31,9 @@ public class TaskController {
             @RequestParam(defaultValue = "false") boolean comments,
             @RequestParam(defaultValue = "1") int page) {
 
-        PageRequest pageRequest = PageRequest.of(page - 1, 15);
+        Pageable pageable = PageRequest.of(page - 1, PAGE_SIZE);
 
-        Page<Task> tasks = taskService.getTasks(author, assignee, comments, pageRequest);
+        Page<Task> tasks = taskService.getTasks(author, assignee, comments, pageable);
 
         return ResponseEntity.ok(tasks);
     }
@@ -116,7 +117,7 @@ public class TaskController {
         return ResponseEntity.noContent().build();
     }
 
-    public TaskDTO TaskToDTO (Task task) {
+    public TaskDTO TaskToTaskDTO (Task task) {
 
         TaskDTO taskDTO = new TaskDTO();
         taskDTO.setTaskName(task.getTaskName());

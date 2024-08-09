@@ -22,10 +22,10 @@ public class TaskDTO {
     private Status status;
     @SerializedName("priority")
     private Priority priority;
-    @SerializedName("author")
-    private String author;
-    @SerializedName("assignee")
-    private String assignee;
+    @SerializedName("author_id")
+    private Long authorId;
+    @SerializedName("assignee_id")
+    private Long assigneeId;
     @SerializedName("comments")
     private List<CommentDTO> comments;
 
