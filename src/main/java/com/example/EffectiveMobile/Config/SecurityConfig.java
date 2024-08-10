@@ -1,24 +1,15 @@
 package com.example.EffectiveMobile.Config;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
 import lombok.extern.java.Log;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import java.security.Key;
-import java.util.Date;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
@@ -27,10 +18,14 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @EnableMethodSecurity
 @Log
 public class SecurityConfig {
+    @Autowired
+    JwtUtils jwtUtils;
 
-    private final long JWT_EXPRESSION_TIME = 1000*60*60;
+    @Autowired
+    UserDetailsServiceImpl userDetailsService;
 
-    private String jwtSecret = "4261656C64756E67";
+    @Autowired
+    AuthenticationProviderImpl authenticationProvider;
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -42,24 +37,15 @@ public class SecurityConfig {
                         .authenticated())
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(new AuthEntryPointJwt()))
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
-                .authenticationProvider(new AuthenticationProvider() {
-                    @Override
-                    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-                        log.info("Authenticating");
-                        return null;
-                    }
-
-                    @Override
-                    public boolean supports(Class<?> authentication) {
-                        log.info("Supports");
-                        return false;
-                    }
-                })
+                .authenticationProvider(authenticationProvider)
                 .addFilterBefore(
-                        new AuthTokenFilter(),
+                        new AuthTokenFilter(jwtUtils, userDetailsService),
                         UsernamePasswordAuthenticationFilter.class
                 );
 
         return http.build();
     }
+
+
+
 }

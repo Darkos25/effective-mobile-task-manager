@@ -10,6 +10,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -112,6 +114,7 @@ public class TaskController {
     public ResponseEntity<Void> deleteComment(
             @PathVariable Long taskId,
             @PathVariable Long commentId) {
+
 
         commentService.deleteComment(taskId, commentId);
         return ResponseEntity.noContent().build();

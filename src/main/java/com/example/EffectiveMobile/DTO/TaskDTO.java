@@ -2,6 +2,7 @@ package com.example.EffectiveMobile.DTO;
 
 import com.example.EffectiveMobile.Model.Priority;
 import com.example.EffectiveMobile.Model.Status;
+import com.example.EffectiveMobile.Model.Task;
 import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,5 +29,8 @@ public class TaskDTO {
     private Long assigneeId;
     @SerializedName("comments")
     private List<CommentDTO> comments;
+
+
+//    autor : { id: 1, email: some@ui.com}
 
 }
