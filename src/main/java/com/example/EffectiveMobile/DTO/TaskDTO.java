@@ -15,6 +15,8 @@ import java.util.List;
 @NoArgsConstructor
 public class TaskDTO {
 
+    @SerializedName("task_id")
+    private Long taskId;
     @SerializedName("task_name")
     private String taskName;
     @SerializedName("description")
@@ -23,14 +25,22 @@ public class TaskDTO {
     private Status status;
     @SerializedName("priority")
     private Priority priority;
-    @SerializedName("author_id")
-    private Long authorId;
-    @SerializedName("assignee_id")
-    private Long assigneeId;
+    @SerializedName("author")
+    private UserDTO author;
+    @SerializedName("assignee")
+    private UserDTO assignee;
     @SerializedName("comments")
     private List<CommentDTO> comments;
 
+    public Task taskDTOToTask(TaskDTO taskDTO) {
 
-//    autor : { id: 1, email: some@ui.com}
+        Task task = new Task();
+        task.setId(taskDTO.getTaskId());
+        task.setTaskName(taskDTO.getTaskName());
+        task.setDescription(taskDTO.getDescription());
+        task.setStatus(taskDTO.getStatus());
+        task.setPriority(taskDTO.getPriority());
 
+        return task;
+    }
 }

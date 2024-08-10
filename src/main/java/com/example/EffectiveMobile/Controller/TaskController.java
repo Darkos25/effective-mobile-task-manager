@@ -1,5 +1,6 @@
 package com.example.EffectiveMobile.Controller;
 
+import com.example.EffectiveMobile.DTO.CommentDTO;
 import com.example.EffectiveMobile.DTO.TaskDTO;
 import com.example.EffectiveMobile.Model.Comment;
 import com.example.EffectiveMobile.Model.Task;
@@ -7,12 +8,15 @@ import com.example.EffectiveMobile.Service.CommentService;
 import com.example.EffectiveMobile.Service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/tasks")
@@ -24,10 +28,10 @@ public class TaskController {
     @Autowired
     private CommentService commentService;
 
-    private final int PAGE_SIZE = 15;
+    private final int PAGE_SIZE = 10;
 
     @GetMapping
-    public ResponseEntity<Page<Task>> getAllTasks(
+    public ResponseEntity<Page<TaskDTO>> getAllTasks(
             @RequestParam(required = false) String author,
             @RequestParam(required = false) String assignee,
             @RequestParam(defaultValue = "false") boolean comments,
@@ -37,27 +41,44 @@ public class TaskController {
 
         Page<Task> tasks = taskService.getTasks(author, assignee, comments, pageable);
 
-        return ResponseEntity.ok(tasks);
+        List<TaskDTO> taskDtos = tasks.getContent()
+                .stream()
+                .map(task -> task.taskToTaskDTO(task))
+                .collect(Collectors.toList());
+
+        Page<TaskDTO> taskDtoPage = new PageImpl<>(taskDtos, pageable, tasks.getTotalElements());
+
+        return ResponseEntity.ok(taskDtoPage);
     }
 
     @GetMapping("/{id}")
-    public Task getTaskById(@PathVariable Long id) {
-        return taskService.getTaskById(id);
+    public ResponseEntity<TaskDTO> getTaskById(@PathVariable Long id) {
+        Task task = taskService.getTaskById(id);
+        if (task != null) {
+            TaskDTO taskDto = task.taskToTaskDTO(task);
+            return ResponseEntity.ok(taskDto);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping
-    public ResponseEntity<Task> createTask(@RequestBody Task task) {
-        Task createdTask = taskService.saveTask(task);
-        return ResponseEntity.ok(createdTask);
+    public ResponseEntity<TaskDTO> createTask(@RequestBody TaskDTO taskDTO) {
+        Task task = taskDTO.taskDTOToTask(taskDTO);
+        taskService.saveTask(task);
+        TaskDTO createdTaskDto = task.taskToTaskDTO(task);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdTaskDto);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody Task task) {
+    public ResponseEntity<TaskDTO> updateTask(@PathVariable Long id, @RequestBody TaskDTO taskDTO) {
         Task existingTask = taskService.getTaskById(id);
         if (existingTask != null) {
-            task.setId(id);
-            Task updatedTask = taskService.saveTask(task);
-            return ResponseEntity.ok(updatedTask);
+            Task updatedTask = taskDTO.taskDTOToTask(taskDTO);
+            updatedTask.setId(id);
+            updatedTask = taskService.saveTask(updatedTask);
+            TaskDTO updatedTaskDto = updatedTask.taskToTaskDTO(updatedTask);
+            return ResponseEntity.ok(updatedTaskDto);
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -75,36 +96,48 @@ public class TaskController {
     }
 
     @GetMapping("/{taskId}/comments")
-    public ResponseEntity<Page<Comment>> getCommentsByTask(
+    public ResponseEntity<Page<CommentDTO>> getCommentsByTask(
             @PathVariable Long taskId,
             @RequestParam(defaultValue = "1") int page) {
 
         Page<Comment> comments = commentService.getCommentsByTask(taskId, page);
-        return ResponseEntity.ok(comments);
+
+        List<CommentDTO> commentDtos = comments.getContent()
+                .stream()
+                .map(comment -> comment.commentToCommentDto(comment))
+                .collect(Collectors.toList());
+
+        Page<CommentDTO> commentDtoPage = new PageImpl<>(commentDtos, comments.getPageable(), comments.getTotalElements());
+
+        return ResponseEntity.ok(commentDtoPage);
     }
 
-    @PostMapping("/{taskId}/comments/{commentId}")
-    public ResponseEntity<Comment> addCommentToTask(
+    @PostMapping("/{taskId}/comments")
+    public ResponseEntity<CommentDTO> addCommentToTask(
             @PathVariable Long taskId,
-            @RequestBody Comment comment) {
+            @RequestBody CommentDTO commentDto) {
 
+        Comment comment = commentDto.commentDTOToComment(commentDto);
         Comment createdComment = commentService.addCommentToTask(taskId, comment);
         if (createdComment != null) {
-            return ResponseEntity.ok(createdComment);
+            CommentDTO createdCommentDto = comment.commentToCommentDto(comment);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdCommentDto);
         } else {
             return ResponseEntity.notFound().build();
         }
     }
 
     @PutMapping("/{taskId}/comments/{commentId}")
-    public ResponseEntity<Comment> updateComment(
+    public ResponseEntity<CommentDTO> updateComment(
             @PathVariable Long taskId,
             @PathVariable Long commentId,
-            @RequestBody Comment comment) {
+            @RequestBody CommentDTO commentDto) {
 
+        Comment comment = commentDto.commentDTOToComment(commentDto);
         Comment updatedComment = commentService.updateComment(taskId, commentId, comment);
         if (updatedComment != null) {
-            return ResponseEntity.ok(updatedComment);
+            CommentDTO updatedCommentDto = comment.commentToCommentDto(comment);
+            return ResponseEntity.ok(updatedCommentDto);
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -114,25 +147,8 @@ public class TaskController {
     public ResponseEntity<Void> deleteComment(
             @PathVariable Long taskId,
             @PathVariable Long commentId) {
-
-
         commentService.deleteComment(taskId, commentId);
         return ResponseEntity.noContent().build();
     }
-
-    public TaskDTO TaskToTaskDTO (Task task) {
-
-        TaskDTO taskDTO = new TaskDTO();
-        taskDTO.setTaskName(task.getTaskName());
-        taskDTO.setDescription(task.getDescription());
-        taskDTO.setPriority(task.getPriority());
-        taskDTO.setStatus(task.getStatus());
-        // Как лучше сделать ДТОху? Сделать юзер или по какому то параметру вызывать юзера?
-//        taskDTO.setAuthor(task.getAuthor().getFullName());
-//        taskDTO.setAssignee(task.getAssignee().getFullName());
-
-        return taskDTO;
-    }
-
 
 }

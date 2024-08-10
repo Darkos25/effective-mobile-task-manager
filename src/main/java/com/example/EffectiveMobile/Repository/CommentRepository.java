@@ -9,7 +9,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
-    Comment findCommentById(Long id);
-
     Page<Comment> findCommentByTaskId(Long taskId, PageRequest pageRequest);
 }

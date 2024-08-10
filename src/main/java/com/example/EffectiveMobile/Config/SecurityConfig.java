@@ -1,6 +1,5 @@
 package com.example.EffectiveMobile.Config;
 
-import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +15,6 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-@Log
 public class SecurityConfig {
     @Autowired
     JwtUtils jwtUtils;

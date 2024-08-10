@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserDTO {
 
+    @SerializedName("user_id")
+    private Long id;
     @SerializedName("full_name")
     private String fullName;
     @SerializedName("email")
@@ -18,10 +20,11 @@ public class UserDTO {
     @SerializedName("password")
     private String password;
 
-    public User DtoToUser (UserDTO userDTO){
+    public User UserDtoToUser (UserDTO userDTO){
         User user = new User();
         user.setEmail(userDTO.getEmail());
         user.setFullName(userDTO.getFullName());
+        user.setId(userDTO.getId());
         user.setPassword(userDTO.getPassword());
         return user;
     }

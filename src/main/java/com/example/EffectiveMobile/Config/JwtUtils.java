@@ -57,7 +57,6 @@ public class JwtUtils {
             return true;
         } catch (MalformedJwtException | ExpiredJwtException |
                  UnsupportedJwtException | IllegalArgumentException ex) {
-            // Handle the exception
         }
         return false;
     }

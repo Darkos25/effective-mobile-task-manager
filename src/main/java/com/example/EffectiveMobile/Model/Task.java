@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.http.codec.cbor.Jackson2CborDecoder;
 
 import java.util.List;
 
@@ -40,5 +39,15 @@ public class Task {
     @ManyToOne
     @JoinColumn(name = "assignee_id")
     private User assignee;
+
+    public TaskDTO taskToTaskDTO(Task task) {
+        TaskDTO taskDTO = new TaskDTO();
+        taskDTO.setTaskId(task.getId());
+        taskDTO.setTaskName(task.getTaskName());
+        taskDTO.setDescription(task.getDescription());
+        taskDTO.setStatus(task.getStatus());
+        taskDTO.setPriority(task.getPriority());
+        return taskDTO;
+    }
 
 }
