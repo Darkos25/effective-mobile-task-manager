@@ -6,6 +6,8 @@ import com.example.EffectiveMobile.Model.Comment;
 import com.example.EffectiveMobile.Model.Task;
 import com.example.EffectiveMobile.Service.CommentService;
 import com.example.EffectiveMobile.Service.TaskService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/tasks")
+@Tag(name = "Task Management", description = "APIs for managing tasks")
 public class TaskController {
 
     @Autowired
@@ -31,15 +34,16 @@ public class TaskController {
     private final int PAGE_SIZE = 10;
 
     @GetMapping
+    @Operation(summary = "Get all tasks", description = "Returns all tasks by author/assignee")
     public ResponseEntity<Page<TaskDTO>> getAllTasks(
             @RequestParam(required = false) String author,
             @RequestParam(required = false) String assignee,
-            @RequestParam(defaultValue = "false") boolean comments,
+            @RequestParam(defaultValue = "false") boolean withComments,
             @RequestParam(defaultValue = "1") int page) {
 
         Pageable pageable = PageRequest.of(page - 1, PAGE_SIZE);
 
-        Page<Task> tasks = taskService.getTasks(author, assignee, comments, pageable);
+        Page<Task> tasks = taskService.getTasks(author, assignee, withComments, pageable);
 
         List<TaskDTO> taskDtos = tasks.getContent()
                 .stream()
@@ -52,6 +56,7 @@ public class TaskController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get Task by ID", description = "Returns a task by its ID")
     public ResponseEntity<TaskDTO> getTaskById(@PathVariable Long id) {
         Task task = taskService.getTaskById(id);
         if (task != null) {
@@ -63,6 +68,7 @@ public class TaskController {
     }
 
     @PostMapping
+    @Operation(summary = "Create a new Task", description = "Creates a new task")
     public ResponseEntity<TaskDTO> createTask(@RequestBody TaskDTO taskDTO) {
         Task task = taskDTO.taskDTOToTask(taskDTO);
         taskService.saveTask(task);
@@ -71,6 +77,7 @@ public class TaskController {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Update task", description = "Update task by id")
     public ResponseEntity<TaskDTO> updateTask(@PathVariable Long id, @RequestBody TaskDTO taskDTO) {
         Task existingTask = taskService.getTaskById(id);
         if (existingTask != null) {
@@ -85,6 +92,7 @@ public class TaskController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Delete task", description = "Delete task by id")
     public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
         Task existingTask = taskService.getTaskById(id);
         if (existingTask != null) {
@@ -96,6 +104,7 @@ public class TaskController {
     }
 
     @GetMapping("/{taskId}/comments")
+    @Operation(summary = "Take all comments for task", description = "Take all comments for task")
     public ResponseEntity<Page<CommentDTO>> getCommentsByTask(
             @PathVariable Long taskId,
             @RequestParam(defaultValue = "1") int page) {
@@ -113,6 +122,7 @@ public class TaskController {
     }
 
     @PostMapping("/{taskId}/comments")
+    @Operation(summary = "Create a new comment for task", description = "Create a new comment for task by task id")
     public ResponseEntity<CommentDTO> addCommentToTask(
             @PathVariable Long taskId,
             @RequestBody CommentDTO commentDto) {
@@ -128,6 +138,7 @@ public class TaskController {
     }
 
     @PutMapping("/{taskId}/comments/{commentId}")
+    @Operation(summary = "Update comment for task", description = "Update comment for task by task id and comment id")
     public ResponseEntity<CommentDTO> updateComment(
             @PathVariable Long taskId,
             @PathVariable Long commentId,
@@ -144,6 +155,7 @@ public class TaskController {
     }
 
     @DeleteMapping("/{taskId}/comments/{commentId}")
+    @Operation(summary = "Delete comment for task", description = "Delete comment for task by task id and comment id")
     public ResponseEntity<Void> deleteComment(
             @PathVariable Long taskId,
             @PathVariable Long commentId) {
