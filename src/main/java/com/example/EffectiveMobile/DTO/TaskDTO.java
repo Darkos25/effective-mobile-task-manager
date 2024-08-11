@@ -15,6 +15,8 @@ import java.util.List;
 @NoArgsConstructor
 public class TaskDTO {
 
+    @SerializedName("task_id")
+    private Long taskId;
     @SerializedName("task_name")
     private String taskName;
     @SerializedName("description")
@@ -30,14 +32,15 @@ public class TaskDTO {
     @SerializedName("comments")
     private List<CommentDTO> comments;
 
-    public Task DTOToTask (TaskDTO taskDTO) {
+    public Task taskDTOToTask(TaskDTO taskDTO) {
+
         Task task = new Task();
+        task.setId(taskDTO.getTaskId());
         task.setTaskName(taskDTO.getTaskName());
         task.setDescription(taskDTO.getDescription());
-        task.setPriority(taskDTO.getPriority());
         task.setStatus(taskDTO.getStatus());
-        task.setAuthor(taskDTO.getAuthor().DtoToUser(taskDTO.getAuthor()));
-        task.setAssignee(taskDTO.getAssignee().DtoToUser(taskDTO.getAssignee()));
+        task.setPriority(taskDTO.getPriority());
+
         return task;
     }
 }

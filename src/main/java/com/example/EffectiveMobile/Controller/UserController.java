@@ -1,5 +1,6 @@
 package com.example.EffectiveMobile.Controller;
 
+import com.example.EffectiveMobile.DTO.UserDTO;
 import com.example.EffectiveMobile.Model.User;
 import com.example.EffectiveMobile.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,31 +17,38 @@ public class UserController {
     private UserService userService;
 
     @GetMapping
-    public List<User> getAllUsers() {
-        return userService.findAll();
+    public List<UserDTO> getAllUsers() {
+        return userService.findAllUsers();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
         User user = userService.findById(id);
         if (user != null) {
-            return ResponseEntity.ok(user);
+            return ResponseEntity.ok(user.userToUserDto(user));
         } else {
             return ResponseEntity.notFound().build();
         }
     }
 
     @PostMapping
-    public User createUser(@RequestBody User user) {
-        return userService.save(user);
+    public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDTO) {
+        User user = userDTO.UserDtoToUser(userDTO);
+        userService.save(user);
+        if (user != null) {
+            return ResponseEntity.ok(user.userToUserDto(user));
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
+    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody UserDTO userDTO) {
         User existingUser = userService.findById(id);
         if (existingUser != null) {
-            user.setId(id);
-            return ResponseEntity.ok(userService.save(user));
+            User user = userDTO.UserDtoToUser(userDTO);
+            userService.save(user);
+            return ResponseEntity.ok(user.userToUserDto(user));
         } else {
             return ResponseEntity.notFound().build();
         }

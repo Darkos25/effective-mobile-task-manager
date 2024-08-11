@@ -23,14 +23,16 @@ public class User {
     @Column(name = "email")
     private String email;
     @Column(name = "password")
+
     private String password;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Task> tasks;
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Comment> comments;
 
-    public UserDTO userToDto (User user){
+    public UserDTO userToUserDto(User user) {
+
         UserDTO userDTO = new UserDTO();
         userDTO.setEmail(user.getEmail());
         userDTO.setFullName(user.getFullName());
