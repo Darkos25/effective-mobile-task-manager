@@ -28,7 +28,7 @@ public class TaskService {
         return taskRepository.deleteTaskById(id);
     }
 
-    public Page<Task> getTasks(String author, String asigner, boolean comments, Pageable pageable) {
+    public Page<Task> getTasks(String author, String asigner, boolean withComments, Pageable pageable) {
         Specification<Task> spec = Specification.where(null);
 
         if (author != null && !author.isEmpty()) {
@@ -39,7 +39,7 @@ public class TaskService {
             spec = spec.and((root, query, cb) -> cb.equal(root.get("asigner"), asigner));
         }
 
-        if (!comments) {
+        if (!withComments) {
             spec = spec.and((root, query, cb) -> cb.isEmpty(root.get("comments")));
         }
 
